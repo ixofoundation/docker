@@ -1,142 +1,132 @@
-version: "2"
+version: '2'
 services:
-  ixo-web:
-    container_name: ixo-web
-    image: trustlab/ixo-web:latest
-    ports:
-      - "80:80"
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
-    links:
-      - blockchain
-      - block-sync
-    environment:
-      - PORT=80
-      - REACT_APP_BLOCKCHAIN_NODE_URL=http://localhost:46657
-      - REACT_APP_BLOCK_SYNC_URL=http://localhost:8080
-      - REACT_APP_IXO_WORLD_ORIGIN=http://localhost
+    ixo-web:
+        container_name: ixo-web
+        image: trustlab/ixo-web:latest
+        ports:
+            - '80:80'
+        restart: always
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '1m'
+                max-file: '1'
+        links:
+            - blockchain
+            - block-sync
+        environment:
+            - PORT=80
+            - REACT_APP_BLOCKCHAIN_NODE_URL=http://localhost:46657
+            - REACT_APP_BLOCK_SYNC_URL=http://localhost:8080
+            - REACT_APP_IXO_WORLD_ORIGIN=http://localhost
 
-  elysian:
-    container_name: elysian
-    image: trustlab/ixo-elysian:latest
-    links:
-      - db
-      - cache
-      - mq
-      - pol
-      - cli
-      - block-sync
-      - blockchain
-    environment:
-      - PORT=5000
-      - MONGODB_URI=mongodb://db:27017/elysian
-      - MEMCACHE_URI=cache:11211
-      - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-      - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
-      - CONFIG=/usr/src/app/config.json
-      - TEMPLATE_REPO=http://api.github.com/repos/ixofoundation/schema/contents/
-      - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
-    ports:
-      - "5000:5000"      
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
-    volumes:
-      - ./config.json:/usr/src/elysian/config.json
-    
-  db:
-    container_name: db
-    image: mongo
-    restart: always
-    volumes:
-      - ./db:/data/db
-      - ./backup:/backup
+    elysian:
+        container_name: elysian
+        image: trustlab/ixo-elysian:latest
+        links:
+            - db
+            - cache
+            - mq
+            - pol
+            - cli
+            - block-sync
+            - blockchain
+        environment:
+            - PORT=5000
+            - MONGODB_URI=mongodb://db:27017/elysian
+            - MEMCACHE_URI=cache:11211
+            - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
+            - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
+            - CONFIG=/usr/src/app/config.json
+            - TEMPLATE_REPO=http://api.github.com/repos/ixofoundation/schema/contents/
+            - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
+        ports:
+            - '5000:5000'
+        restart: always
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '1m'
+                max-file: '1'
+        volumes:
+            - ./config.json:/usr/src/elysian/config.json
 
-  cache:
-    container_name: cache
-    image: memcached:latest
-    restart: always
+    db:
+        container_name: db
+        image: mongo
+        restart: always
+        ports:
+            - '27017:27017'
+        volumes:
+            - ./db:/data/db
+            - ./backup:/backup
 
-  mq:
-    container_name: mq
-    image: rabbitmq:latest
-    restart: always
+    cache:
+        container_name: cache
+        image: memcached:latest
+        restart: always
 
-  pol:
-    container_name: pol
-    image: trustlab/ixo-pol
-    links:
-      - blockchain
-    environment:
-      - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-      - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
-      - POLLTIMER=3000
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
+    mq:
+        container_name: mq
+        image: rabbitmq:latest
+        restart: always
 
-  cli:
-    container_name: cli
-    image: trustlab/ixo-cli
-    links: 
-      - block-sync
-    environment:
-      - MONGODB_URI=mongodb://db:27017/elysian
-      - MEMCACHE_URI=cache:11211
-      - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
- 
-  blockchain:
-    container_name: blockchain
-    image: trustlab/ixo-blockchain:latest
-    restart: always
-    ports:
-      - "46656:46656"
-      - "46657:46657"
-    logging:
-      options:
-        max-size: 30m
-    volumes:
-      - ./data/blockchain:/root/.ixo-node
-    command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
-    
-  rest:
-    container_name: rest
-    image: trustlab/ixo-blockchain:latest
-    restart: always
-    ports:
-      - "1317:1317"
-    volumes:
-      - ./data/blockchain:/root/.ixo-node
-    command: ixocli rest-server -n tcp://0.0.0.0:46657 -a tcp://0.0.0.0:1317
-  
-  block-sync:
-    container_name: block-sync
-    image: trustlab/ixo-block-sync:latest
-    links:
-      - db
-      - blockchain
-    environment:
-      - PORT=8080
-      - MONGODB_URI=mongodb://db:27017/block-sync
-      - MONGODB_URI_LOCAL=mongodb://db:27017/block-sync
-      - CHAIN_URI=blockchain:46657
-    restart: always
-    ports:
-      - "8080:8080"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
+    pol:
+        container_name: pol
+        image: trustlab/ixo-pol
+        links:
+            - blockchain
+        environment:
+            - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
+            - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
+            - POLLTIMER=3000
+        restart: always
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '1m'
+                max-file: '1'
 
+    cli:
+        container_name: cli
+        image: trustlab/ixo-cli
+        links:
+            - block-sync
+        environment:
+            - MONGODB_URI=mongodb://db:27017/elysian
+            - MEMCACHE_URI=cache:11211
+            - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
 
+    blockchain:
+        container_name: blockchain
+        image: trustlab/ixo-blockchain:latest
+        restart: always
+        ports:
+            - '46656:46656'
+            - '46657:46657'
+        logging:
+            options:
+                max-size: 30m
+        volumes:
+            - ./data/blockchain:/root/.ixo-node
+        command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
+
+    block-sync:
+        container_name: block-sync
+        image: trustlab/ixo-block-sync:latest
+        links:
+            - db
+            - blockchain
+        environment:
+            - PORT=8080
+            - MONGODB_URI=mongodb://db:27017/block-sync
+            - MONGODB_URI_LOCAL=mongodb://db:27017/block-sync
+            - CHAIN_URI=blockchain:46657
+        restart: always
+        ports:
+            - '8080:8080'
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '1m'
+                max-file: '1'
