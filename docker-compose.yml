@@ -49,7 +49,7 @@ services:
                 max-size: '1m'
                 max-file: '1'
         volumes:
-            - ./config.json:/usr/src/elysian/config.json
+            - ./config.json:/usr/src/app/config.json
 
     db:
         container_name: db
@@ -111,17 +111,31 @@ services:
             - ./data/blockchain:/root/.ixo-node
         command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
 
+    rest:
+        container_name: rest
+        image: trustlab/ixo-blockchain:master
+        restart: always
+        ports:
+        - "1317:1317"
+        links:
+        - blockchain
+        volumes:
+        - ./data/blockchain:/root/.ixo-node
+        command: ixocli rest-server -n tcp://blockchain:46657 -a tcp://0.0.0.0:1317
+
     block-sync:
         container_name: block-sync
         image: trustlab/ixo-block-sync:master
         links:
             - db
             - blockchain
+            - rest
         environment:
             - PORT=8080
             - MONGODB_URI=mongodb://db:27017/block-sync
             - MONGODB_URI_LOCAL=mongodb://db:27017/block-sync
             - CHAIN_URI=blockchain:46657
+            - BC_REST=http://rest:1317
         restart: always
         ports:
             - '8080:8080'
