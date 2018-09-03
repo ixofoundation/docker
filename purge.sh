@@ -43,3 +43,7 @@ echo "                              |___/                                       
 docker rmi $(docker images -q)
 
 docker volume rm $(docker volume ls -q)
+
+rm -Rf backup 
+rm -Rf data 
+rm -Rf db
