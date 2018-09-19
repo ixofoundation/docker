@@ -2,7 +2,7 @@ version: '2'
 services:
     ixo-web:
         container_name: ixo-web
-        image: trustlab/ixo-web:master
+        image: trustlab/ixo-web:dev
         ports:
             - '80:80'
         restart: always
@@ -22,7 +22,7 @@ services:
 
     elysian:
         container_name: elysian
-        image: trustlab/ixo-elysian:master
+        image: trustlab/ixo-elysian:dev
         links:
             - db
             - cache
@@ -36,10 +36,12 @@ services:
             - MONGODB_URI=mongodb://db:27017/elysian
             - MEMCACHE_URI=cache:11211
             - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-            - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
+            - BLOCKCHAIN_URI_REST=https://block-sync:8080/api/
             - CONFIG=/usr/src/app/config.json
-            - TEMPLATE_REPO=http://api.github.com/repos/ixofoundation/schema/contents/
-            - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
+            - TEMPLATE_REPO=https://api.github.com/repos/ixofoundation/schema/contents/
+            - ETHEREUM_API=https://ropsten.infura.io/
+            - ASYM_CYPHER=aes-256-cbc
+            - ASYM_KEY=trustlab.tech
         ports:
             - '5000:5000'
         restart: always
@@ -73,7 +75,7 @@ services:
 
     pol:
         container_name: pol
-        image: trustlab/ixo-pol:master
+        image: trustlab/ixo-pol:dev
         links:
             - blockchain
         environment:
@@ -89,7 +91,7 @@ services:
 
     cli:
         container_name: cli
-        image: trustlab/ixo-cli:master
+        image: trustlab/ixo-cli:dev
         links:
             - block-sync
         environment:
@@ -99,7 +101,7 @@ services:
 
     blockchain:
         container_name: blockchain
-        image: trustlab/ixo-blockchain:master
+        image: trustlab/ixo-blockchain:dev
         restart: always
         ports:
             - '46656:46656'
@@ -113,7 +115,7 @@ services:
 
     rest:
         container_name: rest
-        image: trustlab/ixo-blockchain:master
+        image: trustlab/ixo-blockchain:dev
         restart: always
         ports:
         - "1317:1317"
@@ -125,7 +127,7 @@ services:
 
     block-sync:
         container_name: block-sync
-        image: trustlab/ixo-block-sync:master
+        image: trustlab/ixo-block-sync:dev
         links:
             - db
             - blockchain
