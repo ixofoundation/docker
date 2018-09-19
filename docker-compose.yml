@@ -22,7 +22,7 @@ services:
 
     elysian:
         container_name: elysian
-        image: trustlab/ixo-pds:sdg
+        image: trustlab/ixo-elysian:sdgfutures
         links:
             - db
             - cache
