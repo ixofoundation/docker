@@ -9,7 +9,7 @@
 		{
 			"capability": "CreateAgent",
 			"template": "agents",
-			"validateKYC": false
+			"validateKYC": true
 		},
 		{
 			"capability": "UpdateAgentStatus",
