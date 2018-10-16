@@ -42,6 +42,7 @@ services:
             - ETHEREUM_API=https://ropsten.infura.io/
             - ASYM_CYPHER=aes-256-cbc
             - ASYM_KEY=trustlab.tech
+            - VALIDISSUERS=did:sov:2p19P17cr6XavfMJ8htYSS
         ports:
             - '5000:5000'
         restart: always
@@ -80,7 +81,7 @@ services:
             - blockchain
         environment:
             - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-            - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:46657/broadcast_tx_sync?tx=0x
+            - BLOCKCHAIN_URI_TENDERMINT=http://blockchain:26657/broadcast_tx_sync?tx=0x
             - POLLTIMER=3000
             - ETHEREUM_API=https://ropsten.infura.io/
         restart: always
@@ -105,8 +106,8 @@ services:
         image: trustlab/ixo-blockchain:dev
         restart: always
         ports:
-            - '46656:46656'
-            - '46657:46657'
+            - '46656:26656'
+            - '46657:26657'
         logging:
             options:
                 max-size: 30m
@@ -124,7 +125,7 @@ services:
         - blockchain
         volumes:
         - ./data/blockchain:/root/.ixo-node
-        command: ixocli rest-server -n tcp://blockchain:46657 -a tcp://0.0.0.0:1317
+        command: ixocli rest-server --node tcp://blockchain:26657 --laddr tcp://0.0.0.0:1317 --cors *
 
     block-sync:
         container_name: block-sync
@@ -137,7 +138,7 @@ services:
             - PORT=8080
             - MONGODB_URI=mongodb://db:27017/block-sync
             - MONGODB_URI_LOCAL=mongodb://db:27017/block-sync
-            - CHAIN_URI=blockchain:46657
+            - CHAIN_URI=blockchain:26657
             - BC_REST=http://rest:1317
         restart: always
         ports:
