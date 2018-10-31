@@ -43,6 +43,7 @@ services:
             - ASYM_CYPHER=aes-256-cbc
             - ASYM_KEY=trustlab.tech
             - VALIDISSUERS=did:sov:2p19P17cr6XavfMJ8htYSS
+            - NODEDID=did:sov:VVWcn41cycdCLYjrxDDgcL
         ports:
             - '5000:5000'
         restart: always
@@ -104,7 +105,7 @@ services:
 
     blockchain:
         container_name: blockchain
-        image: trustlab/ixo-blockchain:dev
+        image: trustlab/ixo-blockchain:feature
         restart: always
         ports:
             - '46656:26656'
@@ -118,7 +119,7 @@ services:
 
     rest:
         container_name: rest
-        image: trustlab/ixo-blockchain:dev
+        image: trustlab/ixo-blockchain:feature
         restart: always
         ports:
         - "1317:1317"
