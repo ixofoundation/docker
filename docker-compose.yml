@@ -43,6 +43,7 @@ services:
             - ASYM_CYPHER=aes-256-cbc
             - ASYM_KEY=trustlab.tech
             - VALIDISSUERS=did:sov:2p19P17cr6XavfMJ8htYSS
+            - NODEDID=8535c3cf7a5eefde04f0612498c587ec95f6c2d9
         ports:
             - '5000:5000'
         restart: always
@@ -83,6 +84,7 @@ services:
             - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
             - BLOCKCHAIN_URI_SYNC=http://blockchain:26657/broadcast_tx_sync?tx=0x
             - BLOCKCHAIN_URI_COMMIT=http://blockchain:26657/broadcast_tx_commit?tx=0x
+            - BLOCKCHAIN_URI_VALIDATE=http://blockchain:26657/tx?hash=0x
             - POLLTIMER=3000
             - ETHEREUM_API=https://ropsten.infura.io/
         restart: always
@@ -104,7 +106,7 @@ services:
 
     blockchain:
         container_name: blockchain
-        image: trustlab/ixo-blockchain:dev
+        image: trustlab/ixo-blockchain:feature
         restart: always
         ports:
             - '46656:26656'
@@ -114,18 +116,22 @@ services:
                 max-size: 30m
         volumes:
             - ./data/blockchain:/root/.ixo-node
+        environment:
+            - ETH_URL=https://ropsten.infura.io/sq19XM5Eu2ANGAzwZ4yk
         command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
 
     rest:
         container_name: rest
-        image: trustlab/ixo-blockchain:dev
+        image: trustlab/ixo-blockchain:feature
         restart: always
         ports:
-        - "1317:1317"
+            - "1317:1317"
         links:
-        - blockchain
+            - blockchain
         volumes:
-        - ./data/blockchain:/root/.ixo-node
+            - ./data/blockchain:/root/.ixo-node
+        environment:
+            - ETH_URL=https://ropsten.infura.io/sq19XM5Eu2ANGAzwZ4yk
         command: ixocli rest-server --node tcp://blockchain:26657 --laddr tcp://0.0.0.0:1317 --cors *
 
     block-sync:
