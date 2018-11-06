@@ -25,7 +25,7 @@ docker-compose start ixo-web
 
 docker-compose start pol
 docker-compose start elysian
-
+docker-compose start cli
 
 echo ""
 echo "***********************************"

@@ -43,7 +43,7 @@ services:
             - ASYM_CYPHER=aes-256-cbc
             - ASYM_KEY=trustlab.tech
             - VALIDISSUERS=did:sov:2p19P17cr6XavfMJ8htYSS
-            - NODEDID=8535c3cf7a5eefde04f0612498c587ec95f6c2d9
+            - NODEDID=did:sov:VVWcn41cycdCLYjrxDDgcL
         ports:
             - '5000:5000'
         restart: always
