@@ -12,12 +12,11 @@ services:
                 max-size: '1m'
                 max-file: '1'
         links:
-            - blockchain
             - block-sync
         environment:
             - PORT=80
-            - REACT_APP_BLOCKCHAIN_NODE_URL=http://localhost:46657
-            - REACT_APP_BLOCK_SYNC_URL=http://localhost:8080
+            - REACT_APP_BLOCKCHAIN_NODE_URL=http://${IP_ADDRESS}:26657
+            - REACT_APP_BLOCK_SYNC_URL=http://block-sync:8080
             - REACT_APP_IXO_WORLD_ORIGIN=http://localhost
 
     elysian:
@@ -30,13 +29,12 @@ services:
             - pol
             - cli
             - block-sync
-            - blockchain
         environment:
             - PORT=5000
             - MONGODB_URI=mongodb://db:27017/elysian
             - MEMCACHE_URI=cache:11211
             - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-            - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/
+            - BLOCKCHAIN_URI_REST=http://${IP_ADDRESS}:8080/api/
             - CONFIG=/usr/src/app/config.json
             - TEMPLATE_REPO=https://api.github.com/repos/ixofoundation/schema/contents/
             - ETHEREUM_API=https://ropsten.infura.io/
@@ -54,7 +52,7 @@ services:
                 max-file: '1'
         volumes:
             - ./config.json:/usr/src/app/config.json
-
+    
     db:
         container_name: db
         image: mongo
@@ -64,27 +62,25 @@ services:
         volumes:
             - ./db:/data/db
             - ./backup:/backup
-
+    
     cache:
         container_name: cache
         image: memcached:latest
         restart: always
-
+    
     mq:
         container_name: mq
         image: rabbitmq:latest
         restart: always
-
+    
     pol:
         container_name: pol
         image: trustlab/ixo-pol:dev
-        links:
-            - blockchain
         environment:
             - RABITMQ_URI=amqp://guest:guest@mq:5672?heartbeat=2
-            - BLOCKCHAIN_URI_SYNC=http://blockchain:26657/broadcast_tx_sync?tx=0x
-            - BLOCKCHAIN_URI_COMMIT=http://blockchain:26657/broadcast_tx_commit?tx=0x
-            - BLOCKCHAIN_URI_VALIDATE=http://blockchain:26657/tx?hash=0x
+            - BLOCKCHAIN_URI_SYNC=http://${IP_ADDRESS}:26657/broadcast_tx_sync?tx=0x
+            - BLOCKCHAIN_URI_COMMIT=http://${IP_ADDRESS}:26657/broadcast_tx_commit?tx=0x
+            - BLOCKCHAIN_URI_VALIDATE=http://${IP_ADDRESS}:26657/tx?hash=0x
             - POLLTIMER=3000
             - ETHEREUM_API=https://ropsten.infura.io/
         restart: always
@@ -93,7 +89,7 @@ services:
             options:
                 max-size: '1m'
                 max-file: '1'
-
+    
     cli:
         container_name: cli
         image: trustlab/ixo-cli:dev
@@ -103,50 +99,18 @@ services:
             - MONGODB_URI=mongodb://db:27017/elysian
             - MEMCACHE_URI=cache:11211
             - BLOCKCHAIN_URI_REST=http://block-sync:8080/api/did/getByDid/
-
-    blockchain:
-        container_name: blockchain
-        image: trustlab/ixo-blockchain:feature
-        restart: always
-        ports:
-            - '46656:26656'
-            - '46657:26657'
-        logging:
-            options:
-                max-size: 30m
-        volumes:
-            - ./data/blockchain:/root/.ixo-node
-        environment:
-            - ETH_URL=https://ropsten.infura.io/sq19XM5Eu2ANGAzwZ4yk
-        command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
-
-    rest:
-        container_name: rest
-        image: trustlab/ixo-blockchain:feature
-        restart: always
-        ports:
-            - "1317:1317"
-        links:
-            - blockchain
-        volumes:
-            - ./data/blockchain:/root/.ixo-node
-        environment:
-            - ETH_URL=https://ropsten.infura.io/sq19XM5Eu2ANGAzwZ4yk
-        command: ixocli rest-server --node tcp://blockchain:26657 --laddr tcp://0.0.0.0:1317 --cors *
-
+    
     block-sync:
         container_name: block-sync
         image: trustlab/ixo-block-sync:dev
         links:
             - db
-            - blockchain
-            - rest
         environment:
             - PORT=8080
             - MONGODB_URI=mongodb://db:27017/block-sync
             - MONGODB_URI_LOCAL=mongodb://db:27017/block-sync
-            - CHAIN_URI=blockchain:26657
-            - BC_REST=http://rest:1317
+            - CHAIN_URI=${IP_ADDRESS}:26657
+            - BC_REST=http://${IP_ADDRESS}:1317
         restart: always
         ports:
             - '8080:8080'
