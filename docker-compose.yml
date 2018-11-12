@@ -37,7 +37,7 @@ services:
             - BLOCKCHAIN_URI_REST=http://${IP_ADDRESS}:8080/api/
             - CONFIG=/usr/src/app/config.json
             - TEMPLATE_REPO=https://api.github.com/repos/ixofoundation/schema/contents/
-            - ETHEREUM_API=https://ropsten.infura.io/
+            - ETHEREUM_API=http://${IP_ADDRESS}:7545
             - ASYM_CYPHER=aes-256-cbc
             - ASYM_KEY=trustlab.tech
             - VALIDISSUERS=did:sov:2p19P17cr6XavfMJ8htYSS
@@ -82,7 +82,7 @@ services:
             - BLOCKCHAIN_URI_COMMIT=http://${IP_ADDRESS}:26657/broadcast_tx_commit?tx=0x
             - BLOCKCHAIN_URI_VALIDATE=http://${IP_ADDRESS}:26657/tx?hash=0x
             - POLLTIMER=3000
-            - ETHEREUM_API=https://ropsten.infura.io/
+            - ETHEREUM_API=http://${IP_ADDRESS}:7545
         restart: always
         logging:
             driver: 'json-file'
