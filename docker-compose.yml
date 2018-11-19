@@ -118,7 +118,7 @@ services:
             - ./data/blockchain:/root/.ixo-node
         environment:
             - ETH_URL=https://ropsten.infura.io/sq19XM5Eu2ANGAzwZ4yk
-        command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/startBlockchain.sh
+        command: /go/src/github.com/ixofoundation/ixo-cosmos/bin/initiatize-or-start-bc.sh
 
     rest:
         container_name: rest
