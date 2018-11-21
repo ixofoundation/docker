@@ -1,0 +1,7 @@
+    "config": {
+      "foundationWallet": "0xC390606EF60Fcf2C76e4eA23bBa7B91d6A174365",
+      "authContractAddress": "0x74cd3ed60ea64c1a9beac11aba52487d86c1a110",
+      "ixoTokenContractAddress": "0xa3ff536d68969b3d152269d8c084071b2c7bf040",
+      "projectRegistryContractAddress": "0xd4a2e6d5bbc8255138cf47b622a5eee64cf89de6",
+      "projectWalletAuthoriserAddress": "0x0cb374f606131694e5a88919ff779c30ceb7dea8"
+    }
